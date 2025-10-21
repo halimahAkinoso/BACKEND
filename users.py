@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 import os
 from dotenv import load_dotenv
+import bcrypt
 import uvicorn
 
 load_dotenv()
@@ -27,4 +28,7 @@ class Simple(BaseModel):
             db.execute(query, {"name": input.name, "email": input.email, "password": input.password})
             db.commit()
             
-            return{"message": "user created successfully"}
+            return{"message": "user created successfully",
+                   "data": {"name": input.name, "email": input.email}}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail = e)
