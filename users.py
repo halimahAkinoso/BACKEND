@@ -18,13 +18,18 @@ class Simple(BaseModel):
     @app.post("/signup")
     def signup(input: simple):
         try:
+            duplicate_query = text("""
+                SELECT * FROM users
+                WHERE email = :email
+                         """)
             query = text("""
                 INSERT INTO users(name, email, password)
                 VALUES (:name, :email, :password)
                          """)
             salt = bcrypt.gensalt()
-            hashedPassword = bcrypt.hashpw(input.password)
+            hashedPassword = bcrypt.hashpw(input.password.encode('utf-8', salt))
             print(hashedPassword)
+            
             db.execute(query, {"name": input.name, "email": input.email, "password": input.password})
             db.commit()
             
